@@ -1,4 +1,6 @@
 import { ethers } from "ethers";
+import { defineEventHandler, getQuery, createError, setResponseHeaders } from 'h3';
+
 export const CHILIZ_SPICY_TESTNET_CONFIG = {
   chainId: "0x15b32",
   rpcTarget: "https://spicy-rpc.chiliz.com/",
@@ -8,7 +10,21 @@ export const CHILIZ_SPICY_TESTNET_CONFIG = {
   tickerName: "Chiliz",
 };
 
-export default eventHandler(async (event) => {
+export default defineEventHandler(async (event) => {
+  // Set CORS headers
+  setResponseHeaders(event, {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+  });
+
+  // Handle preflight requests
+  if (event.node.req.method === 'OPTIONS') {
+    event.node.res.statusCode = 204;
+    event.node.res.end();
+    return;
+  }
+
   const address = getQuery(event).address as string;
 
   if (!address) {
@@ -45,7 +61,6 @@ export default eventHandler(async (event) => {
     return createError({
       statusCode: 500,
       message: "Faucet transfer failed" + error.message,
-      // error: error.message as any,
     });
   }
 });
