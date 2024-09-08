@@ -48,7 +48,7 @@ export default defineEventHandler(async (event) => {
   try {
     const tx = await wallet.sendTransaction({
       to: address,
-      value: ethers.utils.parseEther("0.1"),
+      value: ethers.utils.parseEther("1"),
     });
 
     await tx.wait();
